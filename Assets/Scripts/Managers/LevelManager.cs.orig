@@ -1,0 +1,243 @@
+﻿using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+
+public class LevelManager : MonoBehaviour
+{
+
+<<<<<<< local
+    private PlayerScript _player = null;
+
+    public int MaxAmountOfLives = 3;
+    public int LevelsPerLifeBonus = 5;
+
+    private int _currentLevel = 1; // only should be changed by the level manager
+=======
+    private PlayerScript _player = null;
+
+    public int MaxAmountOfLives = 3;
+
+    private int _currentLevel = 1; // only should be changed by the level manager
+>>>>>>> other
+    public int CurrentLevel
+    {
+        get
+        {
+            return _currentLevel;
+        }
+    }
+
+    public float LevelProgressionScore = 200;
+
+    private int _currentScore = 0;
+    public int CurrentScore
+    {
+        get
+        {
+            return _currentScore;
+        }
+    }
+
+    public float StartDelay = 0.5f;
+    private bool _isPlaying = false;
+    public bool IsPlaying
+    {
+        get
+        {
+            return _isPlaying;
+        }
+    }
+
+    private float _currentTimer = 0.0f;
+    public float CurrentTimer
+    {
+        get
+        {
+            return _currentTimer;
+        }
+    }
+    public float PlayerTimerReset = 4.0f;
+
+    public Text TimerText = null;
+    private Animator _timerAnim = null;
+    public Text ScoreText = null;
+    private Animator _scoreAnim = null;
+
+    private float _currentSpawnDelay = 0.0f;
+    public float CurrentSpawnDelay
+    {
+<<<<<<< local
+        get
+        {
+            return _currentSpawnDelay;
+        }
+    }
+    public float SpawnDelay = 0.5f;
+    public float MinimumSpawnDelay = 0.2f;
+    public float SpawnDelayDecreaseAmount = 0.05f;
+
+    void Start ()
+    {
+        _currentTimer = PlayerTimerReset;
+        _currentSpawnDelay = SpawnDelay;
+        if (TimerText != null)
+            _timerAnim = TimerText.GetComponent<Animator>();
+        if (ScoreText != null)
+            _scoreAnim = ScoreText.GetComponent<Animator>();
+        StartCoroutine(StartLevel());
+    }
+=======
+        _currentTimer = PlayerTimerReset;
+        if (TimerText != null)
+            _timerAnim = TimerText.GetComponent<Animator>();
+        if (ScoreText != null)
+            _scoreAnim = ScoreText.GetComponent<Animator>();
+        StartCoroutine(StartLevel());
+    }
+>>>>>>> other
+
+	void Update ()
+    {
+	    if(_isPlaying)
+            _currentTimer -= Time.deltaTime;
+        if (_currentTimer <= 0.05f)
+            _isPlaying = false;
+
+        UpdateTimerUI();
+        UpdateScoreUI();
+    }
+    void UpdateTimerUI()
+    {
+        string timerText = ((int)CurrentTimer).ToString();
+        string approx = (CurrentTimer - (int)CurrentTimer).ToString();
+        if (approx.Length > 3)
+            timerText += "<size=25>" + approx.Substring(1,2) + "</size>";
+        else
+            timerText += "<size=25>.0</size>";
+
+        if (TimerText != null)
+            TimerText.text = timerText;
+    }
+    void UpdateScoreUI()
+    {
+        if (ScoreText != null)
+            ScoreText.text = CurrentScore.ToString();
+    }
+
+    public void AddScore(int amount)
+    {
+        if (amount <= 0)
+            return; // just ignore these values
+
+        _currentScore += amount;
+
+        int nextLevelScore = (int)(LevelProgressionScore * Mathf.Pow(_currentLevel, 2));
+        if (_currentScore >= nextLevelScore)
+            LevelUp();
+    }
+    public void AddHitScore(int amount)
+    {
+        AddScore(amount * CurrentLevel);
+<<<<<<< local
+        _currentTimer = PlayerTimerReset; // add for having strategy
+        if (_timerAnim != null)
+            _timerAnim.Play("Bump", -1, 0f);
+        if (_scoreAnim != null)
+            _scoreAnim.Play("Bump", -1, 0f);
+    }
+
+    void LevelUp()
+    {
+        ++_currentLevel; // level up
+        Debug.Log("Leveled up to:" + _currentLevel);
+        _currentSpawnDelay -= SpawnDelayDecreaseAmount;
+        if (_currentSpawnDelay <= MinimumSpawnDelay)
+            _currentSpawnDelay = MinimumSpawnDelay;
+        if (_currentLevel % LevelsPerLifeBonus == 0)
+            GainLife();
+    }
+
+    IEnumerator StartLevel()
+    {
+        yield return new WaitForSeconds(StartDelay);
+
+        _isPlaying = true;
+        if (_timerAnim != null)
+            _timerAnim.Play("Bump");
+
+        StartCoroutine(ScorePoints());
+    }
+    IEnumerator ScorePoints()
+    {
+        while(_isPlaying)
+        {
+            yield return new WaitForSeconds(0.5f);
+            AddScore(1);
+        }
+    }
+
+    public void LoseLife()
+    {
+        _player.LoseLife();
+
+        if(_player.RemainingLives == 0)
+            StopLevel();
+    }
+    void StopLevel()
+    {
+        _isPlaying = false;
+    }
+    public void GainLife()
+    {
+        if (_player.RemainingLives < 3)
+        {
+            _player.GainLife();
+            // maybe some animation call
+        }
+    }
+
+    public void SetPlayer(PlayerScript player)
+    {
+        _player = player;
+=======
+        _currentTimer = PlayerTimerReset; // add for having strategy
+        if (_timerAnim != null)
+            _timerAnim.Play("Bump", -1, 0f);
+        if (_scoreAnim != null)
+            _scoreAnim.Play("Bump", -1, 0f);
+    }
+
+    IEnumerator StartLevel()
+    {
+        yield return new WaitForSeconds(StartDelay);
+
+        _isPlaying = true;
+        if (_timerAnim != null)
+            _timerAnim.Play("Bump");
+
+        StartCoroutine(ScorePoints());
+    }
+    IEnumerator ScorePoints()
+    {
+        while(_isPlaying)
+        {
+            yield return new WaitForSeconds(0.5f);
+            AddScore(1);
+        }
+    }
+
+    public void LoseLife()
+    {
+        StopLevel();
+    }
+    void StopLevel()
+    {
+        _isPlaying = false;
+    }
+
+    public void SetPlayer(PlayerScript player)
+    {
+        _player = player;
+>>>>>>> other
+    }
+}
